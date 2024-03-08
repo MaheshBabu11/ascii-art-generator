@@ -16,7 +16,7 @@
         An ASCII Art Generator using htmx and Java
     </description>
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <dependency>
