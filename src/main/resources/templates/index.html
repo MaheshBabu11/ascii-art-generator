@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ASCII Art Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.7/dist/tailwind.min.css"
+          rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.10"
+            integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+            crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100">
+<div class="container mx-auto p-8">
+    <h1 class="text-4xl font-bold text-center mb-8">ASCII Art Generator</h1>
+    <div class="flex justify-center mb-6">
+        <form id="input-form" class="text-center">
+            <label for="input-text" class="block mb-2">Enter Text:</label>
+            <input type="text" id="input-text" name="input-text" required
+                   class="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500">
+            <br>
+
+            <label for="font-select" class="block mt-4 mb-2">Select Font:</label>
+            <select id="font-select" name="font-select"
+                    class="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500">
+            </select>
+            <div hx-get="/api/fonts" hx-trigger="load" hx-target="#font-select">
+            </div>
+            <br>
+            <button class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    hx-post="/api/ascii-art" hx-target="#ascii-art" hx-swap="outerHTML">Generate ASCII Art
+            </button>
+        </form>
+    </div>
+
+    <div class="flex justify-center mt-10">
+        <pre id="ascii-art" class="text-center"></pre>
+    </div>
+
+    <div class="flex justify-center mt-8 space-x-4">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                id="copyButton" onclick="copyToClipboard()" style="display: none;">Copy
+        </button>
+        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                id="downloadButton" onclick="downloadFile()" style="display: none;">Download
+        </button>
+    </div>
+</div>
+<script>
+    function copyToClipboard() {
+        const el = document.createElement('textarea');
+        el.value = document.getElementById('ascii-art').textContent;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        console.log("Copied to clipboard");
+        document.body.removeChild(el);
+    }
+
+    function downloadFile() {
+        const asciiArtContent = document.getElementById('ascii-art').textContent;
+        const blob = new Blob([asciiArtContent], { type: 'text/plain' });
+        const downloadLink = document.createElement('a');
+        downloadLink.href = window.URL.createObjectURL(blob);
+        downloadLink.download = 'ascii_art.txt';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    function adjustButtonVisibility() {
+        const asciiArt = document.getElementById('ascii-art');
+        const copyButton = document.getElementById('copyButton');
+        const downloadButton = document.getElementById('downloadButton');
+        copyButton.style.display = asciiArt.textContent.trim() ? 'inline-block' : 'none';
+        downloadButton.style.display = asciiArt.textContent.trim() ? 'inline-block' : 'none';
+    }
+
+    document.body.addEventListener('htmx:afterSwap', adjustButtonVisibility);
+</script>
+</body>
+</html>
